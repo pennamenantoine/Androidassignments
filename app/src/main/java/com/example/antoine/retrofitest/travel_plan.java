@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.content.Context;
 import android.graphics.BitmapFactory;
 import android.view.View;
+import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -38,6 +39,8 @@ public class travel_plan extends AppCompatActivity {
                                              public void onClick(View v) {
                                                  imageDownload image = new imageDownload(travel_plan.this, iv);
                                                  image.execute(imagePath);
+                                                 final WebView mywebview = (WebView) findViewById(R.id.webview);
+                                                 mywebview.loadUrl("http://travelsouth.us");
                                              }
                                          }
         );

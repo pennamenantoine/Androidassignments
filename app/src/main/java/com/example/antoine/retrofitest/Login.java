@@ -1,16 +1,21 @@
 package com.example.antoine.retrofitest;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
@@ -23,8 +28,6 @@ import static com.example.antoine.retrofitest.R.layout.activity_login;
 
 public class Login extends Activity {
 
-    private String pseudotocheck;
-    private String pswdtocheck;
     private TextView info;
     private LoginButton loginButton;
     private CallbackManager callbackManager;
@@ -59,25 +62,24 @@ public class Login extends Activity {
         final EditText pseudoEt = (EditText) findViewById(R.id.Pseudo);
         final EditText passwordEt = (EditText) findViewById(R.id.Password);
 
-        Intent intent = getIntent();
-        if (intent != null) {
-            if (intent.hasExtra("pseudo") && intent.hasExtra("pswd")) {
-                pseudotocheck = intent.getStringExtra("pseudo");
-                pswdtocheck = intent.getStringExtra("pswd");
-            }
-        }
-
         final Button connectButton = (Button) findViewById(R.id.connect);
         connectButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final String pseudo = pseudoEt.getText().toString().trim();
-                final String password = passwordEt.getText().toString().trim();
-                if (pseudo.equals(pseudotocheck) && password.equals(pswdtocheck)) {
+                if (isLoggedIn()) {
                     Intent intent = new Intent(Login.this, travel_plan.class);
                     startActivity(intent);
                 }
-                else {
+                SharedPreferences prefs = getSharedPreferences("CoolPreferences", 0);
+                String mpseudotocheck = prefs.getString("pseudo", "");
+                String mpswdtocheck = prefs.getString("pswd", "");
+                final String pseudo = pseudoEt.getText().toString().trim();
+                final String password = passwordEt.getText().toString().trim();
+                if (pseudo.equals(mpseudotocheck) && password.equals(mpswdtocheck)) {
+                    Intent intent = new Intent(Login.this, travel_plan.class);
+                    startActivity(intent);
+                }
+                if(!pseudo.equals(mpseudotocheck) && !password.equals(mpswdtocheck) && !isLoggedIn()){
                     Toast.makeText(getBaseContext(), "Incorrect Pseudo or password please try again",
                             Toast.LENGTH_LONG).show();
                 }
@@ -96,5 +98,9 @@ public class Login extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         callbackManager.onActivityResult(requestCode, resultCode, data);
+    }
+    public boolean isLoggedIn() {
+        AccessToken accessToken = AccessToken.getCurrentAccessToken();
+        return accessToken != null;
     }
 }
